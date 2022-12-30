@@ -79,7 +79,7 @@ function BuyData() {
               disabled
               readOnly
               type="number"
-              value={selectedDataObj.my_price}
+              value={selectedDataObj.plan_amount}
             />
             <button
               disabled={isLoading}
