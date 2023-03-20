@@ -179,6 +179,7 @@ const monnify = async (req, res) => {
   //   return result;
   // };
   // console.log(req.body);
+  console.log(req.body);
   const stringifiedBody = JSON.stringify(req.body);
   const computedHash = sha512.hmac(
     process.env.MONNIFY_API_SECRET,
