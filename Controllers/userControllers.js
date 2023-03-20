@@ -54,7 +54,7 @@ const register = async (req, res) => {
   try {
     await User.create({ ...req.body });
     // generate account number
-    // await generateAccountNumber({ userName, email });
+    await generateAccountNumber({ userName, email });
     const user = await User.findOne({ email });
     const token = user.createJWT();
     const allDataList = await Data.find();
@@ -134,11 +134,11 @@ const login = async (req, res) => {
   if (!isPasswordCorrect)
     return res.status(400).json({ msg: "Incorrect password" });
   // generate account number
-  // if (!user.reservedAccountNo)
-  //   await generateAccountNumber({
-  //     userName,
-  //     email: user.email,
-  //   });
+  if (!user.reservedAccountNo)
+    await generateAccountNumber({
+      userName,
+      email: user.email,
+    });
   const token = user.createJWT();
   const isReseller = user.userType === "reseller";
   const isApiUser = user.userType === "api user";
