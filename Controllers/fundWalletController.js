@@ -56,7 +56,7 @@ const coupon = async (req, res) => {
 const initiateFlutterwave = async (req, res) => {
   // res.status(200).json({ msg: "initiate flutterwave fund" });
   return res.status(400).json({
-    msg: "Kindly use the account number on your dashboard to fund your wallet",
+    msg: "Kindly use the account number on your dashboard to find your wallet",
   });
   const { amount } = req.body;
   const userId = req.user.userId;
@@ -179,7 +179,6 @@ const monnify = async (req, res) => {
   //   return result;
   // };
   // console.log(req.body);
-  console.log(req.body);
   const stringifiedBody = JSON.stringify(req.body);
   const computedHash = sha512.hmac(
     process.env.MONNIFY_API_SECRET,

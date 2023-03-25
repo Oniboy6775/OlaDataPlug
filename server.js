@@ -62,6 +62,10 @@ app.use("/api/v1/buy", auth, purchaseRouter);
 app.use("/api/v1/fundWallet", fundWalletRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/transaction", auth, transactionRoute);
+app.use("/api/v1/*", (req, res) => {
+  console.log(req.body);
+  res.status(200).json({ msg: "API is working fine" });
+});
 // ONLY WHEN READY TO DEPLOY
 
 const start = async () => {
