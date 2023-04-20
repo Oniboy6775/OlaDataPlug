@@ -75,7 +75,7 @@ function BuyAirtime() {
               readOnly
               type="number"
               value={
-                user.userType === "reseller" ? amount * 0.975 : amount * 0.98
+                user.userType === "reseller" ? amount * 0.99 : amount * 0.99
               }
             />
             <button

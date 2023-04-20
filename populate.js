@@ -24,9 +24,12 @@ const populate = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log("DB connected");
-    // await costPriceModel.deleteMany();
+    // await costPriceModel.deleteMany({});
     // await costPriceModel.create(costPrices);
-    // await dataModel.updateMany({ plan: "2GB" }, { $set: { volumeRatio: 2 } });
+    // await dataModel.updateMany(
+    //   { plan: "500.0MB" },
+    //   { $set: { volumeRatio: 0.5 } }
+    // );
     // await dataModel.updateMany({ plan: "3GB" }, { $set: { volumeRatio: 3 } });
     // await dataModel.updateMany({ plan: "4GB" }, { $set: { volumeRatio: 4 } });
     // await dataModel.updateMany({ plan: "5GB" }, { $set: { volumeRatio: 5 } });

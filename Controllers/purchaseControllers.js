@@ -14,8 +14,8 @@ const buyAirtime = async (req, res) => {
   } = req;
   const isReseller = userType === "reseller";
   const isApiUser = userType === "api user";
-  let amountToCharge = amount * 0.98;
-  if (isReseller || isApiUser) amountToCharge = amount * 0.975;
+  let amountToCharge = amount * 0.99;
+  if (isReseller || isApiUser) amountToCharge = amount * 0.99;
   const user = await User.findById(userId);
   if (!mobile_number || !amount || !network)
     return res.status(400).json({ msg: "All fields are required" });
@@ -34,15 +34,20 @@ const buyAirtime = async (req, res) => {
   if (network == "3") NETWORK = "AIRTEL";
   if (network == "4") NETWORK = "9MOBILE";
   if (status) {
-    const receipt = await AIRTIME_RECEIPT({
-      plan_network: NETWORK,
-      Status: "success",
-      plan_amount: amount,
-      mobile_number,
+    const transactionId = uuid();
+    const payload = {
+      transactionId,
+      planNetwork: NETWORK,
+      status: "processing",
+      planName: amount,
+      phoneNumber: mobile_number,
       amountToCharge,
       balance,
       userId,
-    });
+      userName: user.userName,
+      type: "airtime",
+    };
+    const receipt = await generateReceipt(payload);
     res.status(200).json({ msg: msg, receipt });
   } else {
     await User.updateOne(
