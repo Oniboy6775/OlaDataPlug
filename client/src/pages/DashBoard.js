@@ -70,7 +70,7 @@ const DashBoard = () => {
           <p className="text-center text-small leading-none text-white">
             <FaWhatsapp className="m-1" />
             <a
-              href="https://chat.whatsapp.com/CtRWPxS6xhC3J465gmWJoC"
+              href="https://chat.whatsapp.com/DzmXMfIwfVuANrkUPuyQBB"
               target="blank"
             >
               click here{" "}
