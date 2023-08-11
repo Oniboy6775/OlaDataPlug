@@ -123,7 +123,7 @@ const DashBoard = () => {
                 </p>
               </div>
               <h3 className="text-sm p-0 m-0">
-                Account name <br /> DataReloaded-
+                Account name <br /> OlaDataPlug-
                 {user.userName && user.userName.substring(0, 10)}
               </h3>
               <div className="text-sm">
@@ -162,7 +162,7 @@ const DashBoard = () => {
                   </p>
                 </div>
                 <h3 className="text-sm p-0 m-0">
-                  Account name: <br /> Abdullahi Onisabi DataReloaded-
+                  Account name: <br /> Abdullahi Onisabi OlaDataPlug-
                   {user.userName && user.userName.substring(0, 10)}
                 </h3>
                 <div className="text-sm">
@@ -193,8 +193,8 @@ const DashBoard = () => {
             <div className="card">
               <h1 className="sub__title">refer a friend</h1>
               <div className="note">
-                Refer people to DataReloaded and earn ₦500 immediately the
-                person upgrade his/her account to Reseller.
+                Refer people to OlaDataPlug and earn ₦500 immediately the person
+                upgrade his/her account to Reseller.
               </div>
               <button className="btn special__btn" onClick={copyReferralLink}>
                 Copy referral link
