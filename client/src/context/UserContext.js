@@ -630,11 +630,14 @@ export const AppProvider = ({ children }) => {
         meterId: availablePlanId[selectedIndex],
         meterType: selectedMeterType,
       });
-      dispatch({ type: VALIDATE_SUCCESS, payload: data.name });
+      dispatch({
+        type: VALIDATE_SUCCESS,
+        payload: data.name + " " + data.address,
+      });
       toast.success(data.name);
     } catch (error) {
       dispatch({ type: STOP_LOADING });
-      toast.error(error.response.data.name);
+      toast.error(error.response.data.msg);
     }
   };
   const buyElectricity = async () => {

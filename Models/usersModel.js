@@ -35,6 +35,8 @@ const userSchema = new mongoose.Schema({
   reservedAccountNo: { type: String },
   reservedAccountBank2: { type: String },
   reservedAccountNo2: { type: String },
+  reservedAccountBank3: { type: String },
+  reservedAccountNo3: { type: String },
 
   userType: {
     type: String,

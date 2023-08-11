@@ -1,12 +1,19 @@
 const User = require("../Models/usersModel");
-const { AIRTIME_RECEIPT, DATA_RECEIPT } = require("./TransactionReceipt");
+const {
+  AIRTIME_RECEIPT,
+  DATA_RECEIPT,
+  ELECETRICITY_RECEIPT,
+} = require("./TransactionReceipt");
 const Data = require("../Models/dataModel");
 const generateReceipt = require("./generateReceipt");
 const CostPrice = require("../Models/costPriceModel");
 const { v4: uuid } = require("uuid");
+const BUYELECTRICITY = require("./APICALLS/Electricity/electricity");
 
 const BUYAIRTIME = require("./APICALLS/Airtime/buyAirtime");
 const BUYDATA = require("./APICALLS/Data/Data");
+const { default: axios } = require("axios");
+const { disco } = require("../API_DATA/disco");
 const buyAirtime = async (req, res) => {
   const {
     user: { userId, userType },
@@ -148,9 +155,30 @@ const buyData = async (req, res) => {
 };
 
 const validateMeter = async (req, res) => {
-  res.status(500).json({
-    msg: "An error occur.Please try again later",
-  });
+  const { meterNumber, meterId, meterType } = req.body;
+  console.log({ ...req.body });
+  if (!meterNumber && !meterId)
+    return res.status(400).json({ msg: "All fields are required" });
+  try {
+    const ValidateMeterResponse = await axios.post(
+      `${process.env.DATARELOADED_API}/buy/validateMeter`,
+      { meterNumber, meterId, meterType },
+      {
+        headers: {
+          Authorization: process.env.DATARELOADED_API_KEY,
+        },
+      }
+    );
+    // console.log(ValidateMeterResponse);
+    const { invalid, name, address } = ValidateMeterResponse.data;
+    console.log({ invalid, name, address });
+    res.status(200).json({ name, address });
+  } catch (error) {
+    console.log(error.response.data);
+    res.status(500).json({
+      msg: error.response.data.name || "An error occur.Please try again later",
+    });
+  }
 };
 
 const validateCableTv = async (req, res) => {
@@ -160,9 +188,46 @@ const validateCableTv = async (req, res) => {
 };
 
 const buyElectricity = async (req, res) => {
-  res.status(500).json({
-    msg: "An error occured.Please try again later",
-  });
+  const { meterId, meterNumber, amount, meterType } = req.body;
+  const { userId, userType } = req.user;
+  const amountToCharge = parseFloat(amount) + 50;
+  if (!meterId || !meterNumber || !amount || !meterType) {
+    console.log(req.body);
+    return res.status(400).json({ msg: "All fields are required" });
+  }
+  const user = await User.findById(userId);
+  const { balance } = user;
+
+  // if (amount < 1000)
+  //   return res.status(400).json({ msg: "minimum purchase is 1000" });
+  if (balance < amountToCharge || balance - amountToCharge < 0)
+    return res
+      .status(400)
+      .json({ msg: "Insufficient balance. Kindly fund your wallet" });
+  // Charging the user
+  await User.updateOne({ _id: userId }, { $inc: { balance: -amountToCharge } });
+
+  const response = await BUYELECTRICITY({ ...req.body });
+  const { status, token, msg } = response;
+  if (status) {
+    const receipt = await ELECETRICITY_RECEIPT({
+      package: "electricity token",
+      Status: "success",
+      token: token,
+      meter_number: meterNumber,
+      amountToCharge,
+      balance,
+      userId,
+    });
+    res.status(200).json({ msg: msg, receipt });
+  } else {
+    // return the charged amount
+    await User.updateOne(
+      { _id: userId },
+      { $inc: { balance: amountToCharge } }
+    );
+    res.status(500).json({ msg: msg || "Transaction failed" });
+  }
 };
 const buyCableTv = async (req, res) => {
   return res.status(400).json({ msg: "Not available at the moment" });

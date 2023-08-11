@@ -26,18 +26,15 @@ const populate = async () => {
     console.log("DB connected");
     // await costPriceModel.deleteMany({});
     // await costPriceModel.create(costPrices);
-    // await dataModel.updateMany(
-    //   { plan: "500.0MB" },
-    //   { $set: { volumeRatio: 0.5 } }
-    // );
-    // await dataModel.updateMany({ plan: "3GB" }, { $set: { volumeRatio: 3 } });
-    // await dataModel.updateMany({ plan: "4GB" }, { $set: { volumeRatio: 4 } });
-    // await dataModel.updateMany({ plan: "5GB" }, { $set: { volumeRatio: 5 } });
-    // await dataModel.updateMany({ plan: "10GB" }, { $set: { volumeRatio: 10 } });
+    await dataModel.create(AIRTEL);
+    await dataModel.updateMany(
+      { plan: "500MB" },
+      { $set: { volumeRatio: 0.5 } }
+    );
+
     // await dataModel.create(GLO);
     // await dataModel.deleteMany({});
     // await dataModel.create(MTN_SME);
-    // await dataModel.create(AIRTEL);
     // await dataModel.create(NMOBILE);
     // await cabletvModel.create(GOTV);
     // await cabletvModel.create(DSTV);
