@@ -61,7 +61,8 @@ const generateVpayAcc = async ({ email, firstName, lastName, phoneNumber }) => {
       }
     );
   } catch (e) {
-    console.log(e.response || e.data.message || e);
+    console.log(e);
+    // console.log(e.response || e.data.message || e);
   }
 };
 
