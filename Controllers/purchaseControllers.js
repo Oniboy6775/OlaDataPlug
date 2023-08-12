@@ -112,6 +112,12 @@ const buyData = async (req, res) => {
     });
     costPrice = CG_COST_PRICE;
   }
+  if (NETWORK === "MTN" && plan_type == "COUPON") {
+    const { costPrice: COUPON_COST_PRICE } = await CostPrice.findOne({
+      network: "MTN-COUPON",
+    });
+    costPrice = COUPON_COST_PRICE;
+  }
   const { status, data, msg } = await BUYDATA({ ...req.body });
 
   isSuccess = status;

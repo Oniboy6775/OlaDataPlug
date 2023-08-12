@@ -14,11 +14,12 @@ const {
 } = require("./API_DATA/newData");
 require("dotenv").config();
 const costPrices = [
-  { network: "MTN", costPrice: 221 },
-  { network: "MTN-CG", costPrice: 245 },
-  { network: "GLO", costPrice: 230 },
-  { network: "AIRTEL", costPrice: 250 },
-  { network: "9MOBILE", costPrice: 340 },
+  // { network: "MTN", costPrice: 221 },
+  // { network: "MTN-CG", costPrice: 245 },
+  // { network: "GLO", costPrice: 230 },
+  // { network: "AIRTEL", costPrice: 250 },
+  // { network: "9MOBILE", costPrice: 340 },
+  // { network: "MTN-COUPON", costPrice: 205 },
 ];
 const populate = async () => {
   try {
@@ -26,11 +27,11 @@ const populate = async () => {
     console.log("DB connected");
     // await costPriceModel.deleteMany({});
     // await costPriceModel.create(costPrices);
-    await dataModel.create(AIRTEL);
-    await dataModel.updateMany(
-      { plan: "500MB" },
-      { $set: { volumeRatio: 0.5 } }
-    );
+    // await dataModel.create(MTN_SME);
+    // await dataModel.updateMany(
+    //   { plan: "500MB" },
+    //   { $set: { volumeRatio: 0.5 } }
+    // );
 
     // await dataModel.create(GLO);
     // await dataModel.deleteMany({});

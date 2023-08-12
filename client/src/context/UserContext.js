@@ -124,7 +124,7 @@ export const AppProvider = ({ children }) => {
     couponCode: "",
     totalSales: 0,
     totalProfit: 0,
-    productList: ["MTN", "MTN-CG", "GLO", "AIRTEL", "9MOBILE"],
+    productList: ["MTN", "MTN-CG", "MTN-COUPON", "GLO", "AIRTEL", "9MOBILE"],
     selectedProduct: "MTN",
     transactionStatusList: [
       "all",
