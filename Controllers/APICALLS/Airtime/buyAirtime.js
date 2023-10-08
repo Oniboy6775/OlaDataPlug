@@ -14,7 +14,7 @@ const buyAirtime = async ({ network, mobile_number, amount }) => {
   if (!isPlanExist) return { status: false, msg: "Invalid plan Id" };
   networkId = availableNetworks[network];
   try {
-    await axios.post(
+    const response = await axios.post(
       `${process.env.DATARELOADED_API}/buy/airtime`,
       {
         network: networkId.id,
@@ -30,6 +30,7 @@ const buyAirtime = async ({ network, mobile_number, amount }) => {
     return {
       status: true,
       msg: `${networkId.name} airtime purchase successful`,
+      apiResponseId: response.data.apiResponseId,
     };
   } catch (error) {
     return { status: false };

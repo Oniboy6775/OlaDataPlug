@@ -34,7 +34,11 @@ const buyAirtime = async (req, res) => {
       .status(400)
       .json({ msg: "Insufficient balance. Kindly fund your wallet" });
   await User.updateOne({ _id: userId }, { $inc: { balance: -amountToCharge } });
-  const { status, msg } = await BUYAIRTIME({ network, amount, mobile_number });
+  const { status, msg, apiResponseId } = await BUYAIRTIME({
+    network,
+    amount,
+    mobile_number,
+  });
   let NETWORK = "";
   if (network == "1") NETWORK = "MTN";
   if (network == "2") NETWORK = "GLO";
@@ -53,6 +57,7 @@ const buyAirtime = async (req, res) => {
       userId,
       userName: user.userName,
       type: "airtime",
+      apiResponseId,
     };
     const receipt = await generateReceipt(payload);
     res.status(200).json({ msg: msg, receipt });
