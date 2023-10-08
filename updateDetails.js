@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const User = require("./Models/usersModel");
-// const dotenv = require("dotenv");
 require("dotenv").config();
 const populate = async () => {
   try {

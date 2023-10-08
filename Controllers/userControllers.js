@@ -442,13 +442,16 @@ const validateToken = async (req, res) => {
 
     const user = await User.findById(verified.userId);
     if (!user) return res.json(false);
-
+    await User.updateOne(
+      { _id: user.id },
+      { $currentDate: { lastLogin: true } }
+    );
     return res.json(true);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    // console.log(err);
+    res.status(500).json({ msg: err.message });
   }
 };
-
 const requestPasswordReset = async (req, res) => {
   // res.status(200).json({ msg: "password reet successful" });
   const { email } = req.body;

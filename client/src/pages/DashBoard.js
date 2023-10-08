@@ -162,7 +162,7 @@ const DashBoard = () => {
                   </p>
                 </div>
                 <h3 className="text-sm p-0 m-0">
-                  Account name: <br /> Abdullahi Onisabi OlaDataPlug-
+                  Account name: <br /> Sodiq Ismail-OlaDataPlug-
                   {user.userName && user.userName.substring(0, 10)}
                 </h3>
                 <div className="text-sm">

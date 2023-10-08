@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema({
   reservedAccountNo2: { type: String },
   reservedAccountBank3: { type: String },
   reservedAccountNo3: { type: String },
-
+  lastLogin: { type: Date },
   userType: {
     type: String,
     default: "smart earner",

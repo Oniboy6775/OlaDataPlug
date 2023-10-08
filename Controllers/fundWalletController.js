@@ -224,9 +224,65 @@ const monnify = async (req, res) => {
   await Transaction(transactionDetails).save();
   // res.status(200).json({ eventType, amountPaid, paidOn, customer });
 };
+const vPay = async (req, res) => {
+  console.log(req.body);
+  let secret = req.headers["x-payload-auth"];
+  let payload = jwt.decode(secret);
+  secret = payload.secret;
+  if (secret !== process.env.VPAY_SECRET_KEY) {
+    console.log("secret key not match");
+    console.log(secret, process.env.VPAY_SECRET_KEY);
+    return;
+  }
+  console.log("secret matched!!!");
+  const {
+    amount,
+    account_number,
+    originator_account_name,
+    originator_bank,
+    originator_account_number,
+    fee,
+  } = req.body;
+  // checking user to credit
+  const userToCredit = await User.findOne({
+    reservedAccountNo3: account_number,
+  });
+  if (!userToCredit) {
+    console.log("User with the account does not exist");
+    return;
+  }
+  // increasing user balance
+  let totalCharges = fee;
+  if (totalCharges > 100) totalCharges = 100;
+  const amountToCredit = amount - totalCharges;
+  await User.updateOne(
+    { _id: userToCredit._id },
+    {
+      $inc: { balance: amountToCredit },
+      $set: { trans_profit: fee > 100 ? 100 - fee : 0 },
+    }
+  );
+  // generating receipt
+  await generateReceipt({
+    transactionId: uuid(),
+    planNetwork: "Auto-funding||VFD",
+    status: "success",
+    planName: `₦${amount}`,
+    phoneNumber: account_number,
+    amountToCharge: amountToCredit,
+    balance: userToCredit.balance,
+    userId: userToCredit._id,
+    userName: userToCredit.userName,
+    type: "wallet",
+    response: `${originator_account_name} ${originator_account_number} ${originator_bank}`,
+    increased: true,
+  });
+  res.sendStatus(200);
+};
 module.exports = {
   coupon,
   initiateFlutterwave,
   flutterwave,
   monnify,
+  vPay,
 };

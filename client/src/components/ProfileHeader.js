@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { FaAlignLeft } from "react-icons/fa";
+import { FaAlignLeft, FaHome } from "react-icons/fa";
 import { useGlobalContext } from "../context/UserContext";
 
 function ProfileHeader() {
@@ -12,16 +12,20 @@ function ProfileHeader() {
     logoutUser();
     navigate("/");
   };
-
+  const navigateHome = () => navigate("/profile");
   return (
     <Container>
       <Hamburger onClick={toggleSideBar}>
         <FaAlignLeft />
       </Hamburger>
       {isAdmin ? (
-        <button className="logout__btn btn">ADMIN</button>
+        <button onClick={navigateHome} className="logout__btn btn">
+          ADMIN
+        </button>
       ) : (
-        <button className="btn">Welcome</button>
+        <button onClick={navigateHome} className="btn">
+          <FaHome />
+        </button>
       )}
 
       <button className="logout__btn btn" onClick={logout}>
