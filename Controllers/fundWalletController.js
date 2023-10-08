@@ -6,6 +6,7 @@ const { v4: uuid } = require("uuid");
 const { COUPON_RECEIPT } = require("./TransactionReceipt");
 const Flutterwave = require("flutterwave-node-v3");
 const sha512 = require("js-sha512").sha512;
+const jwt = require("jsonwebtoken");
 
 const coupon = async (req, res) => {
   const { userId } = req.user;
