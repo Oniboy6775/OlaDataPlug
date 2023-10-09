@@ -16,6 +16,7 @@ const usersRouter = require("./Routes/usersRouter");
 const fundWalletRouter = require("./Routes/fundWalletRouter");
 const adminRouter = require("./Routes/adminRouter");
 const transactionRoute = require("./Routes/transactionsRouter");
+const webhookRoute = require("./Routes/webhookRoutes");
 
 // extra security packages
 const helmet = require("helmet");
@@ -62,6 +63,7 @@ app.use("/api/v1/buy", auth, purchaseRouter);
 app.use("/api/v1/fundWallet", fundWalletRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/transaction", auth, transactionRoute);
+app.use("/api/v1/webhook", auth, webhookRoute);
 app.use("/api/v1/*", (req, res) => {
   console.log(req.body);
   res.status(200).json({ msg: "API is working fine" });
