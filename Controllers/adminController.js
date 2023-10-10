@@ -233,6 +233,7 @@ const searchUsers = async (req, res) => {
   const totalPages = Math.ceil(noOfUsers / limit);
   // Total user balance
   let allUser = await User.find().select("balance");
+  const adminBalance = await User.findOne({ _id: process.env.ADMIN_ID });
   let allBalance = allUser.reduce((acc, curr) => {
     acc += curr.balance;
     return acc;
@@ -241,7 +242,7 @@ const searchUsers = async (req, res) => {
     users: result,
     totalPages,
     totalUsers: noOfUsers,
-    totalBalance: allBalance,
+    totalBalance: allBalance - adminBalance.balance,
   });
 };
 const updatePrice = async (req, res) => {
