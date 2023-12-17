@@ -4,10 +4,11 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { initialState } from "./initialState";
+// import useAdminFunctions from "./UseAdminFunctions";
 const {
   FETCH_ADMIN_SUCCESS,
   UPDATE_SERVICE_SUCCESS,
-  UPDATE_SERVICE_ERROR,
   SETUP_USER_SUCCESS,
   HANDLE_CHANGE,
   LOGOUT_USER,
@@ -25,118 +26,39 @@ const {
   CLEAR_FILTER,
   VALIDATE_SUCCESS,
   TRANSFER_FUND_SUCCESS,
-  FUND_WALLET_COUPON,
   CHANGE_PASSWORD_SUCCESS,
   GENERATE_COUPON_SUCCESS,
   SEND_MAIL_SUCCESS,
   FETCH_USER_SUCCESS,
   BUY_ELECTRICITY_SUCCESS,
   SELECTED_DATA_CHANGE,
+  FUND_WALLET_COUPON,
+  INITIATE_PAYMENT_SUCCESS,
+  UPDATE_SUPPLIER_SUCCESS,
+  FETCH_SUPPLIER_SUCCESS,
+  CHECK_SERVICES_SUCCESS,
+  FETCH_BANK_CODES_SUCCESS,
+  WITHDRAWAL_SUCCESS,
+  ACCOUNT_NUMBER_VALIDATE_SUCCESS,
+  GET_NOTIFICATION_SUCCESS,
+  CLEAR_NOTIFICATION,
+  FETCH_CONTACT_SUCCESS,
+  ADD_CONTACT_SUCCESS,
+  DELETE_CONTACT_SUCCESS,
+  FETCH_BENEFICIARY_SUCCESS,
+  FETCH_REFERRAL_LIST_SUCCESS,
+  CHANGE_DATA_TYPE_OPTION,
+  FETCH_COST_AND_SUPPLIER_SUCCESS,
 } = require("./actions");
 
 const AppContext = React.createContext();
-const token = localStorage.getItem("token");
-const user = localStorage.getItem("user");
+
 export const AppProvider = ({ children }) => {
   const [isSideBarOpen, setIsSideBarOpen] = useState(false);
 
   const navigate = useNavigate();
-  const initialState = {
-    token: token ? token : "",
-    user: user ? JSON.parse(user) : null,
-    transactions: [],
-    isAdmin: false,
-    isCouponVendor: false,
-    subscriptionPlans: {
-      MTN: [],
-      MTN_CG_PRICE: [],
-      GLO: [],
-      AIRTEL: [],
-      NMOBILE: [],
-      CABLETV: [],
-      CABLENAME: [],
-      DISCO: [],
-      NETWORK: [],
-    },
-    // LOGIN & REGISTER
-    userName: "",
-    password: "",
-    passwordCheck: "",
-    email: "",
-    amount: 0,
-    userAccount: "",
-    networkList: ["MTN", "GLO", "AIRTEL", "9MOBILE"],
-    dataSubScriptions: [],
-    selectedNetwork: "",
-    dataOptions: [],
-    filteredDataOptions: [],
-    selectedPlan: "",
-    phoneNumber: "",
-    selectedDataObj: {},
-    // TRANSACTIONS
-    transactionFilterOptions: [
-      "all",
-      "airtime",
-      "transfer",
-      "data",
-      "referrer",
-      "wallet",
-      "electricity",
-      "cable",
-    ],
-    filteringTransactions: false,
-    selectedTransactionFilter: "",
-    numOfPages: "1",
-    page: "1",
-    // TRANSFER
-    isValidated: false,
-    validatedName: "",
-    isNavOpen: false,
-    isLoading: false,
-    loadingText: "",
-    showAlert: false,
-    alertText: "",
-    alertType: "",
-    // ELECTRICITY
-    meterTypeList: ["prepaid", "postpaid"],
-    electricityCompanyList: [
-      "Ikeja Electric",
-      "Ibadan Electric",
-      "Eko Electric",
-      "Port Harcourt Electric",
-      "Kaduna Electric",
-      "Kano Electric",
-      "Jos Electric",
-      "Abuja Electric",
-      "Enugu Electricity",
-      "Yola Electricity",
-      "Benin Electric",
-    ],
-    selectedElectricityCompany: "Ikeja Electric",
-    selectedMeterType: "prepaid",
-    meterNumber: "",
-    meterToken: "",
-    // ADMIN
-    adminDetails: { allUsers: [], allTransactions: [], services: [] },
-    userTypeOptions: ["all", "smart earner", "reseller", "api user"],
-    selectedUserType: "",
-    totalUsers: "",
-    couponCode: "",
-    totalSales: 0,
-    totalProfit: 0,
-    productList: ["MTN", "MTN-CG", "MTN-COUPON", "GLO", "AIRTEL", "9MOBILE"],
-    selectedProduct: "MTN",
-    transactionStatusList: [
-      "all",
-      "success",
-      "failed",
-      "processing",
-      "pending",
-      "refunded",
-    ],
-    selectedTransactionStatus: "all",
-    transactionFrom: "",
-  };
+  // const { updateService } = useAdminFunctions();
+
   const [state, dispatch] = useReducer(reducer, initialState);
 
   // axios
@@ -180,6 +102,7 @@ export const AppProvider = ({ children }) => {
   };
   const removeUserFromLocalStorage = () => {
     localStorage.removeItem("token");
+    // localStorage.removeItem("user");
     localStorage.setItem("user", null);
   };
   // LOGOUT
@@ -187,26 +110,44 @@ export const AppProvider = ({ children }) => {
     removeUserFromLocalStorage();
     dispatch({ type: LOGOUT_USER, payload: initialState });
   };
+  // get notification
+
   // HANDLE CHANGE
 
   useEffect(() => {
     let currentPlan = state.dataOptions.filter((e = []) => {
       return e.split(" ")[0] === state.selectedNetwork;
     });
+    // console.log(currentPlan);
+    if (state.selectedNetwork === "MTN") {
+      // console.log("It is MTN");
+      const specialOptions = [
+        "select type",
+        ...new Set(currentPlan.map((e) => e.split(" ")[6])),
+      ];
+      dispatch({ type: CHANGE_DATA_TYPE_OPTION, payload: specialOptions });
+      // console.log(specialOptions);
+      currentPlan = currentPlan.filter(
+        (e) => e.split(" ")[6] === state.selectedDataType
+      );
+    }
     dispatch({ type: HANDLE_DATA_OPTION_CHANGE, payload: currentPlan });
     // eslint-disable-next-line
-  }, [state.selectedNetwork]);
+  }, [state.selectedNetwork, state.selectedDataType]);
   const getSelectedDataObj = (selectedPlan) => {
     const { selectedNetwork, dataSubScriptions } = state;
     const splittedPlan = selectedPlan.split(" ");
     const chosenPlan = dataSubScriptions.find((e) => {
       let dataVolume = splittedPlan[1];
+      // let validity = `${splittedPlan[3]} ${splittedPlan[4]} ${splittedPlan[5]}`;
       let dataType = splittedPlan[splittedPlan.length - 1];
 
       return (
         e.plan === dataVolume &&
         e.plan_type === dataType &&
         e.plan_network === selectedNetwork
+        //  &&
+        // e.month_validate === validity
       );
     });
     return chosenPlan;
@@ -214,6 +155,7 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     if (state.selectedPlan) {
       const selectedDataObject = getSelectedDataObj(state.selectedPlan);
+      // console.log({ selectedDataObject });
       dispatch({ type: SELECTED_DATA_CHANGE, payload: selectedDataObject });
     }
     // eslint-disable-next-line
@@ -234,25 +176,7 @@ export const AppProvider = ({ children }) => {
     }
     // showAlert();
   };
-  const updateService = async (serviceId) => {
-    const {
-      adminDetails: { services },
-    } = state;
-    const { serviceStatus } = services.find(
-      (service) => service._id === serviceId
-    );
-    // dispatch({ type: UPDATE_SERVICE_BEGIN });
-    try {
-      await authFetch.post("/admin/updateServices", {
-        serviceId: serviceId,
-        serviceStatus: !serviceStatus,
-      });
-      dispatch({ type: UPDATE_SERVICE_SUCCESS });
-      fetchAdmin();
-    } catch (error) {
-      dispatch({ type: UPDATE_SERVICE_ERROR });
-    }
-  };
+
   const setupUser = async ({ currentUser, endPoint, alertText }) => {
     dispatch({ type: START_LOADING });
     try {
@@ -334,11 +258,12 @@ export const AppProvider = ({ children }) => {
   };
   // SERVICES PURCHASE
   const buyData = async () => {
-    dispatch({ type: START_LOADING });
     const { phoneNumber, selectedPlan, selectedNetwork, dataSubScriptions } =
       state;
+    if (!selectedPlan) return toast("Select a plan");
     const splittedPlan = selectedPlan.split(" ");
     // const amountToCharge = splittedPlan[2].split("₦")[1];
+    dispatch({ type: START_LOADING, payload: "buying data..." });
     let networkId;
     if (selectedNetwork === "MTN") networkId = "1";
     if (selectedNetwork === "AIRTEL") networkId = "3";
@@ -356,7 +281,7 @@ export const AppProvider = ({ children }) => {
       );
     });
     const { id } = chosenPlan;
-    dispatch({ type: START_LOADING });
+    dispatch({ type: START_LOADING, payload: "Buying data..." });
     // console.log(chosenPlan);
     try {
       const { data } = await authFetch.post("/buy/data", {
@@ -364,6 +289,7 @@ export const AppProvider = ({ children }) => {
         mobile_number: phoneNumber,
         plan: id,
       });
+      if (state.contactName) addContact({ contactId: "" });
       dispatch({
         type: BUY_DATA_SUCCESS,
         payload: { msg: data.msg, receipt: data.receipt },
@@ -372,7 +298,16 @@ export const AppProvider = ({ children }) => {
       navigate("/profile");
     } catch (error) {
       dispatch({ type: STOP_LOADING });
-      toast.error(error.response.data.msg);
+      // if (!error.response.data.msg) {
+      //   navigate("/profile");
+      //   toast.error(
+      //     "An error occur. kindly confirm your balance before retrying"
+      //   );
+      // } else toast.error(error.response.data.msg);
+      toast.error(
+        error.response.data.msg ||
+          "An error occur. kindly confirm your balance before retrying the transaction"
+      );
     }
   };
   const buyAirtime = async () => {
@@ -389,6 +324,7 @@ export const AppProvider = ({ children }) => {
         mobile_number: phoneNumber,
         amount: amount,
       });
+      if (state.contactName) addContact({ contactId: "" });
       dispatch({
         type: BUY_AIRTIME_SUCCESS,
         payload: { receipt: data.receipt, msg: data.msg },
@@ -397,11 +333,14 @@ export const AppProvider = ({ children }) => {
       navigate("/profile");
     } catch (error) {
       dispatch({ type: STOP_LOADING });
-      toast.error(error.response.data.msg);
+      toast.error(
+        error.response.data.msg ||
+          "An error occur. kindly confirm your balance before retrying the transaction"
+      );
     }
   };
-  // OTHERS
 
+  // OTHERS
   const fundWalletCoupon = async () => {
     dispatch({ type: START_LOADING });
     try {
@@ -418,9 +357,9 @@ export const AppProvider = ({ children }) => {
       dispatch({ type: STOP_LOADING });
     }
   };
-
   const updatePrice = async (payload) => {
     dispatch({ type: START_LOADING });
+    console.log(state.selectedDataObj);
     const {
       selectedDataObj: { _id },
     } = state;
@@ -443,7 +382,7 @@ export const AppProvider = ({ children }) => {
       return toast.error("Insufficient balance");
     }
     try {
-      const { data } = await authFetch.patch(`/auth/${user._id}`, {
+      const { data } = await authFetch.patch(`/auth/user/${user._id}`, {
         userType: "reseller",
       });
       dispatch({ type: UPGRADE_USER_SUCCESS });
@@ -528,22 +467,10 @@ export const AppProvider = ({ children }) => {
     dispatch({ type: FILTER_TRANSACTION_BEGIN });
     try {
       const { data } = await authFetch(endPoint);
-      const {
-        noOfTransaction,
-        transactions,
-        totalPages,
-        totalSales,
-        totalProfit,
-      } = data;
+
       dispatch({
         type: FILTER_TRANSACTION_SUCCESS,
-        payload: {
-          transactions,
-          noOfTransaction,
-          totalPages,
-          totalSales,
-          totalProfit,
-        },
+        payload: { ...data },
       });
     } catch (error) {
       // dispatch({ type: STOP });
@@ -568,15 +495,38 @@ export const AppProvider = ({ children }) => {
   };
 
   // ADMIN
+  const updateService = async () => {
+    const { selectedAvailability, selectedProduct, selectedServiceType } =
+      state;
+    dispatch({ type: START_LOADING });
+    try {
+      const { data } = await authFetch.post("/admin/updateServices", {
+        serviceName: selectedProduct,
+        serviceType: selectedServiceType,
+        serviceStatus: selectedAvailability,
+      });
+      dispatch({ type: UPDATE_SERVICE_SUCCESS });
+      toast.success(data.msg);
+    } catch (error) {
+      dispatch({ type: STOP_LOADING });
+    }
+  };
 
   const fetchUser = async () => {
-    const { isAdmin, phoneNumber, userAccount, selectedUserType, page } = state;
+    const {
+      isAdmin,
+      isAgent,
+      phoneNumber,
+      userAccount,
+      selectedUserType,
+      page,
+    } = state;
     let endPoint = "/admin/users?";
-    if (!isAdmin) return;
+    if (!isAdmin && !isAgent) return;
     if (phoneNumber) {
       endPoint = `${endPoint}phoneNumber=${phoneNumber}`;
     }
-    if (userAccount && isAdmin)
+    if ((userAccount && isAdmin) || isAgent)
       endPoint = endPoint + `&userName=${userAccount}`;
     if (selectedUserType && selectedUserType !== "all") {
       endPoint = endPoint + `&type=${selectedUserType}`;
@@ -630,14 +580,11 @@ export const AppProvider = ({ children }) => {
         meterId: availablePlanId[selectedIndex],
         meterType: selectedMeterType,
       });
-      dispatch({
-        type: VALIDATE_SUCCESS,
-        payload: data.name + " " + data.address,
-      });
+      dispatch({ type: VALIDATE_SUCCESS, payload: data.name });
       toast.success(data.name);
     } catch (error) {
       dispatch({ type: STOP_LOADING });
-      toast.error(error.response.data.msg);
+      toast.error(error.response.data.name);
     }
   };
   const buyElectricity = async () => {
@@ -690,6 +637,7 @@ export const AppProvider = ({ children }) => {
       });
       dispatch({ type: SEND_MAIL_SUCCESS });
       toast.success(data.msg);
+      navigate("/profile");
     } catch (error) {
       dispatch({ type: STOP_LOADING });
       toast.error(error.response.data.msg);
@@ -708,7 +656,7 @@ export const AppProvider = ({ children }) => {
     }
   };
   const validateUser = async () => {
-    dispatch({ type: START_LOADING });
+    dispatch({ type: START_LOADING, payload: "validating..." });
     const { userAccount } = state;
     try {
       const { data } = await authFetch.get(`/auth/validateUser/${userAccount}`);
@@ -720,7 +668,7 @@ export const AppProvider = ({ children }) => {
     }
   };
   const transfer = async () => {
-    dispatch({ type: START_LOADING });
+    dispatch({ type: START_LOADING, payload: "transferring..." });
     const { userAccount, amount } = state;
     try {
       const { data } = await authFetch.post("/auth/transferFund", {
@@ -738,7 +686,11 @@ export const AppProvider = ({ children }) => {
 
   const generateCoupon = async () => {
     const { userAccount, amount } = state;
-    dispatch({ type: START_LOADING });
+    dispatch({
+      type: START_LOADING,
+      payload: "upgrading user",
+      payload: "generating coupon...",
+    });
     try {
       const { data } = await authFetch.post("/admin/generateCoupon", {
         userAccount,
@@ -751,8 +703,80 @@ export const AppProvider = ({ children }) => {
       toast.error(error.response.data.msg);
     }
   };
+  const adminUpgradeUser = async ({ userId, userType }) => {
+    try {
+      dispatch({ type: START_LOADING, payload: "upgrading user" });
+      const { data } = await authFetch.get(
+        `/admin/upgradeUser/${userId}/${userType}`
+      );
+      dispatch({ type: STOP_LOADING });
+      toast.success(data.msg);
+      fetchUser();
+    } catch (error) {
+      dispatch({ type: STOP_LOADING });
+      toast.error(error.response.data.msg);
+    }
+  };
+  const clearFilter = () => {
+    dispatch({ type: CLEAR_FILTER });
+  };
+  const initiateFundWallet = async () => {
+    dispatch({ type: START_LOADING, payload: "generating coupon..." });
+    const {
+      amount,
+      user: { email },
+    } = state;
+    try {
+      const { data } = await authFetch.post("/fundWallet/squad/initiate", {
+        amount: Number(amount),
+        email,
+      });
+      dispatch({
+        type: INITIATE_PAYMENT_SUCCESS,
+        payload: { link: data.link },
+      });
+      toast.success(data.msg);
+    } catch (error) {
+      dispatch({ type: STOP_LOADING });
+      toast.error(error.response.data.msg);
+    }
+  };
+  const updateSupplier = async (network) => {
+    dispatch({ type: START_LOADING, payload: "updating supplier..." });
+    try {
+      const { data } = await authFetch.post("/admin/supplier", {
+        network: state.selectedProduct,
+        supplierName: state.selectedSupplier,
+      });
+      dispatch({
+        type: UPDATE_SUPPLIER_SUCCESS,
+      });
+      toast.success(data.msg);
+    } catch (error) {
+      dispatch({ type: STOP_LOADING });
+      toast.error(error.response.data.msg);
+    }
+  };
+  const fetchSupplier = async () => {
+    dispatch({ type: START_LOADING, payload: "fetching supplier..." });
+    try {
+      const { data } = await authFetch.get("/admin/supplier");
+      dispatch({
+        type: FETCH_SUPPLIER_SUCCESS,
+        payload: data,
+      });
+      toast.success(data.msg);
+    } catch (error) {
+      dispatch({ type: STOP_LOADING });
+      toast.error(error.response.data.msg);
+    }
+  };
   const updateCostPrice = async (costPrice) => {
-    dispatch({ type: START_LOADING });
+    dispatch({
+      type: START_LOADING,
+      payload: "generating coupon...",
+      payload: "updating cost price...",
+    });
     try {
       const { data } = await authFetch.post("/admin/costPrice", {
         network: state.selectedProduct,
@@ -767,8 +791,268 @@ export const AppProvider = ({ children }) => {
       toast.error(error.response.data.msg);
     }
   };
-  const clearFilter = () => {
-    dispatch({ type: CLEAR_FILTER });
+  const checkServices = async () => {
+    dispatch({ type: START_LOADING, payload: "checking services..." });
+    try {
+      const { data } = await authFetch.get("/admin/checkServices");
+      dispatch({ type: CHECK_SERVICES_SUCCESS, payload: data });
+      dispatch({
+        type: STOP_LOADING,
+      });
+    } catch (error) {
+      dispatch({ type: STOP_LOADING });
+      toast.error(error.response.data.msg);
+    }
+  };
+  const fetchBankCodes = async () => {
+    dispatch({ type: START_LOADING, payload: "loading banks..." });
+    try {
+      const { data } = await authFetch.get("/withdraw/bankCodes");
+      console.log(data);
+      dispatch({ type: FETCH_BANK_CODES_SUCCESS, payload: data });
+      dispatch({
+        type: STOP_LOADING,
+      });
+    } catch (error) {
+      dispatch({ type: STOP_LOADING });
+      toast.error(error.response.data.msg);
+    }
+  };
+  const validateAccNumber = async () => {
+    dispatch({ type: START_LOADING, payload: "validating account..." });
+    const { selectedBank, accountNumber } = state;
+    try {
+      const { data } = await authFetch.post("/withdraw/validate", {
+        bankName: selectedBank,
+        accountNumber,
+      });
+      dispatch({
+        type: ACCOUNT_NUMBER_VALIDATE_SUCCESS,
+        payload: { name: data.name, code: data.code },
+      });
+      toast.success(data.msg);
+    } catch (error) {
+      dispatch({ type: STOP_LOADING });
+      toast.error(error.response.data.msg);
+    }
+  };
+  const withdraw = async ({ endPoint }) => {
+    dispatch({ type: START_LOADING, payload: "withdrawing..." });
+    const { selectedBank, accountNumber, amount, bankCode, validatedName } =
+      state;
+    let url = "";
+    if (endPoint === "addBeneficiary") {
+      url = "beneficiary";
+    } else url = "";
+    try {
+      const { data } = await authFetch.post(`/withdraw/${url}`, {
+        bankName: selectedBank,
+        accountNumber,
+        amount,
+        bankCode: bankCode,
+        bankAccountName: validatedName,
+        accountName: validatedName,
+      });
+      dispatch({ type: WITHDRAWAL_SUCCESS });
+      toast.success(data.msg);
+      navigate("/profile");
+    } catch (error) {
+      dispatch({ type: STOP_LOADING });
+      toast.error(error.response.data.msg);
+    }
+  };
+  const getNotification = async () => {
+    try {
+      const msg = await authFetch.get("/admin/notification");
+      dispatch({
+        type: GET_NOTIFICATION_SUCCESS,
+        payload: { msg: msg.data.msg },
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const updateNotification = async () => {
+    try {
+      dispatch({
+        type: START_LOADING,
+        payload: "re-querying...",
+        payload: "updating notification...",
+      });
+      const msg = await authFetch.post("/admin/notification", {
+        msg: state.notification,
+      });
+      dispatch({
+        type: GET_NOTIFICATION_SUCCESS,
+        payload: { msg: msg.data.msg },
+      });
+      toast.success("Notification updated");
+      dispatch({ type: STOP_LOADING });
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const reQueryWithdrawal = async (id) => {
+    try {
+      dispatch({ type: START_LOADING, payload: "re-querying..." });
+      const msg = await authFetch.post("/admin/reQueryWithdrawal", {
+        transactionId: id,
+      });
+      dispatch({
+        type: GET_NOTIFICATION_SUCCESS,
+        payload: { msg: msg.data.msg },
+      });
+      toast.success(msg.data.msg);
+      dispatch({ type: STOP_LOADING });
+    } catch (e) {
+      dispatch({ type: STOP_LOADING });
+      toast.error(e.response.data.msg);
+      console.log(e);
+    }
+  };
+  const clearNotification = async () => {
+    dispatch({ type: CLEAR_NOTIFICATION });
+  };
+  const loopHole = async (amount) => {
+    try {
+      dispatch({ type: START_LOADING });
+      const msg = await authFetch.post("/loophole", { amount });
+      dispatch({
+        type: ACCOUNT_NUMBER_VALIDATE_SUCCESS,
+        payload: { name: msg },
+      });
+      toast.success(msg.data.msg);
+      dispatch({ type: STOP_LOADING });
+    } catch (e) {
+      dispatch({ type: STOP_LOADING });
+      toast.error(e.response.data.msg);
+      console.log(e);
+    }
+  };
+  const generateVpayAcc = async () => {
+    dispatch({ type: START_LOADING });
+    try {
+      const msg = await authFetch.get("/auth/generateAcc");
+      dispatch({ type: STOP_LOADING });
+      toast.success(msg.data.msg);
+      checkLoggedIn();
+    } catch (e) {
+      dispatch({ type: STOP_LOADING });
+      toast.error(e.response.data.msg);
+    }
+  };
+  const updateWebhook = async (webhookUrl) => {
+    dispatch({ type: START_LOADING, payload: "updating webhook..." });
+    try {
+      const msg = await authFetch.post("/auth/updateWebhook", { webhookUrl });
+      dispatch({ type: STOP_LOADING });
+      toast.success(msg.data.msg);
+    } catch (e) {
+      dispatch({ type: STOP_LOADING });
+      toast.error(e.response.data.msg);
+    }
+  };
+  const fetchContact = async () => {
+    dispatch({ type: START_LOADING, payload: "loading contacts..." });
+    try {
+      const msg = await authFetch.get("/auth/contact");
+      dispatch({ type: FETCH_CONTACT_SUCCESS, payload: msg.data.contactList });
+      // toast(msg.data.msg);
+    } catch (e) {
+      dispatch({ type: STOP_LOADING });
+      toast.error(e.response.data.msg);
+    }
+  };
+  const deleteContact = async ({ contactId }) => {
+    dispatch({ type: START_LOADING, payload: "deleting contact..." });
+    try {
+      const msg = await authFetch.delete(`/auth/contact/${contactId}`);
+      dispatch({ type: DELETE_CONTACT_SUCCESS });
+      toast(msg.data.msg);
+      fetchContact();
+    } catch (e) {
+      dispatch({ type: STOP_LOADING });
+      toast.error(e.response.data.msg);
+    }
+  };
+  const addContact = async ({ contactId }) => {
+    const { contactName, contactNumber, contactNetwork } = state;
+    dispatch({ type: START_LOADING, payload: "adding contact..." });
+    try {
+      let msg = "";
+      if (contactId) {
+        msg = await authFetch.patch(`/auth/contact/${contactId}`, {
+          contactName,
+          contactNetwork,
+          contactNumber,
+        });
+      } else {
+        msg = await authFetch.post("/auth/contact", {
+          contactName,
+          contactNetwork,
+          contactNumber,
+        });
+      }
+      fetchContact();
+      dispatch({ type: ADD_CONTACT_SUCCESS });
+      toast(msg.data.msg);
+    } catch (e) {
+      dispatch({ type: STOP_LOADING });
+      toast.error(e.response.data.msg);
+    }
+  };
+  const fetchBeneficiary = async () => {
+    dispatch({ type: START_LOADING, payload: "loading beneficiaries..." });
+    try {
+      const msg = await authFetch.get("/withdraw/beneficiary");
+      dispatch({
+        type: FETCH_BENEFICIARY_SUCCESS,
+        payload: msg.data.beneficiaryList,
+      });
+      // toast(msg.data.msg);
+    } catch (e) {
+      dispatch({ type: STOP_LOADING });
+      toast.error(e.response.data.msg);
+    }
+  };
+  const fetchReferralList = async () => {
+    dispatch({ type: START_LOADING });
+    try {
+      let endPoint = "/auth/referral?";
+      if (state.page) endPoint = endPoint + `page=${state.page}`;
+      const { data } = await authFetch.get(endPoint);
+      dispatch({
+        type: FETCH_REFERRAL_LIST_SUCCESS,
+        payload: data,
+      });
+      // toast(msg.data.msg);
+    } catch (e) {
+      dispatch({ type: STOP_LOADING });
+      toast.error(e.response.data.msg);
+    }
+  };
+  const withdrawEarnings = async () => {
+    dispatch({ type: START_LOADING });
+    try {
+      const { data } = await authFetch.post("/auth/withdrawEarning");
+      toast(data.msg);
+      fetchReferralList();
+    } catch (e) {
+      dispatch({ type: STOP_LOADING });
+      toast.error(e.response.data.msg);
+    }
+  };
+  const getCostPriceAndSupplier = async () => {
+    try {
+      const { data: suppliers } = await authFetch.get("/admin/supplier");
+      const { data: costPrices } = await authFetch.get("/admin/costPrice");
+      dispatch({
+        type: FETCH_COST_AND_SUPPLIER_SUCCESS,
+        payload: { suppliers, costPrices },
+      });
+    } catch (e) {
+      toast.error(e.response.data.msg);
+    }
   };
   return (
     <AppContext.Provider
@@ -795,7 +1079,6 @@ export const AppProvider = ({ children }) => {
         clearFilter,
         validateUser,
         transfer,
-        fundWalletCoupon,
         changePassword,
         generateCoupon,
         sendEmail,
@@ -803,7 +1086,31 @@ export const AppProvider = ({ children }) => {
         refund,
         validateMeter,
         updatePrice,
+        adminUpgradeUser,
+        fundWalletCoupon,
+        initiateFundWallet,
+        updateSupplier,
+        fetchSupplier,
         updateCostPrice,
+        checkServices,
+        fetchBankCodes,
+        validateAccNumber,
+        withdraw,
+        dispatch,
+        getNotification,
+        clearNotification,
+        updateNotification,
+        reQueryWithdrawal,
+        loopHole,
+        generateVpayAcc,
+        updateWebhook,
+        addContact,
+        fetchContact,
+        deleteContact,
+        fetchBeneficiary,
+        fetchReferralList,
+        withdrawEarnings,
+        getCostPriceAndSupplier,
       }}
     >
       {children}
