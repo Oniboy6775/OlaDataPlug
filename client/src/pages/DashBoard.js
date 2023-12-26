@@ -20,7 +20,7 @@ const DashBoard = () => {
   const copyReferralLink = async () => {
     const userName = encodeURIComponent(user.userName);
     await window.navigator.clipboard.writeText(
-      `https://www.oladataplug.com/register/${userName}`
+      `https://www.oladataplug.com.ng/register/${userName}`
     );
     toast.success("Referral link copied");
   };
