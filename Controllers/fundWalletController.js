@@ -226,9 +226,13 @@ const monnify = async (req, res) => {
   // res.status(200).json({ eventType, amountPaid, paidOn, customer });
 };
 const vPay = async (req, res) => {
-  console.log(req.body);
+  console.log({ ...req.body });
+  console.log("request headers");
+  console.log({ ...req.headers });
   let secret = req.headers["x-payload-auth"];
+  console.log({ secret });
   let payload = jwt.decode(secret);
+  console.log(payload);
   secret = payload.secret;
   if (secret !== process.env.VPAY_SECRET_KEY) {
     console.log("secret key not match");
@@ -254,13 +258,13 @@ const vPay = async (req, res) => {
   }
   // increasing user balance
   let totalCharges = fee;
-  if (totalCharges > 100) totalCharges = 100;
+  // if (totalCharges > 100) totalCharges = 100;
   const amountToCredit = amount - totalCharges;
   await User.updateOne(
     { _id: userToCredit._id },
     {
       $inc: { balance: amountToCredit },
-      $set: { trans_profit: fee > 100 ? 100 - fee : 0 },
+      // $set: { trans_profit: fee > 100 ? 100 - fee : 0 },
     }
   );
   // generating receipt
